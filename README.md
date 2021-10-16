@@ -47,6 +47,11 @@ This is a code repository for backend of Work Around project, that was created a
 <!-- GETTING STARTED -->
 ## Getting Started
 
+### Prerequisites
+  ```sh
+  sudo apt-get install libgdal-dev
+  ```
+
 ### Installation
 
 1. Clone the repo
