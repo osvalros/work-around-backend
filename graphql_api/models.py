@@ -72,7 +72,7 @@ class Property(models.Model):
     user = models.ForeignKey(User, models.CASCADE)
     is_available = models.BooleanField(default=False)
     usd_worth = models.FloatField()
-    photo_id = models.IntegerField()
+    photo_id = models.CharField(max_length=50)
     meters_squared = models.IntegerField()
     property_type = models.ForeignKey(PropertyType, models.SET_NULL, blank=True, null=True)
     room_type = models.TextField(choices=RoomType.choices, blank=True, null=True)
