@@ -66,7 +66,7 @@ class Query(graphene.ObjectType):
         return properties
 
 
-class Mutation:
+class Mutation(graphene.ObjectType):
     debug = graphene.Field(DjangoDebug, name='_debug') if settings.DEBUG else None
     pass
 
