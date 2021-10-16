@@ -77,6 +77,11 @@ class PropertyType(DjangoObjectType):
         model = Property
 
 
+class CityType(DjangoObjectType):
+    class Meta:
+        model = City
+
+
 class Query(graphene.ObjectType):
     debug = graphene.Field(DjangoDebug, name='_debug') if settings.DEBUG else None
     health = graphene.Field(HealthType, required=True)
@@ -90,6 +95,7 @@ class Query(graphene.ObjectType):
     property_types = graphene.List(graphene.NonNull(PropertyTypeType), required=True)
     lengths_of_stay = graphene.List(graphene.NonNull(Int), required=True)
     room_types = graphene.List(graphene.NonNull(String), required=True)
+    available_cities = graphene.List(graphene.NonNull(CityType))
 
     @staticmethod
     def resolve_health(root, info):
@@ -131,6 +137,10 @@ class Query(graphene.ObjectType):
     @staticmethod
     def resolve_room_types(root, info):
         return [e.value for e in RoomType]
+
+    @staticmethod
+    def resolve_available_cities(root, info):
+        return City.objects.filter(properties__is_available=True)
 
 
 class SuccessMixin:

@@ -97,7 +97,7 @@ class Property(models.Model):
                                             related_name="properties")
     lifestyle_types = models.ManyToManyField("graphql_api.LifestyleType", through="LifestyleTypeProperty",
                                              related_name="properties")
-    city = models.ForeignKey(City, models.SET_NULL, blank=True, null=True)
+    city = models.ForeignKey(City, models.SET_NULL, blank=True, null=True, related_name="properties")
 
 
 class FacilityTypeProperty(models.Model):
