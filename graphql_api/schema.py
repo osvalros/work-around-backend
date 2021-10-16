@@ -56,8 +56,10 @@ class Query(graphene.ObjectType):
     health = graphene.Field(HealthType, required=True)
     users = graphene.List(graphene.NonNull(UserType), required=True)
     closest_properties = graphene.List(graphene.NonNull(PropertyType), required=True,
-                                       lat=graphene.Float(default_value=50.083076), lng=graphene.Float(default_value=14.420020),
-                                       max_distance=graphene.Float(description="Maximal distance in kilometers"))
+                                       lat=graphene.Float(default_value=50.083076),
+                                       lng=graphene.Float(default_value=14.420020),
+                                       max_distance=graphene.Float(description="Maximal distance in kilometers"),
+                                       is_available=graphene.Boolean())
 
     @staticmethod
     def resolve_health(root, info):
@@ -68,11 +70,14 @@ class Query(graphene.ObjectType):
         return User.objects.all()
 
     @staticmethod
-    def resolve_closest_properties(root, info, lat: float, lng: float, max_distance: float = None):
+    def resolve_closest_properties(root, info, lat: float, lng: float, max_distance: float = None,
+                                   is_available: bool = None):
         properties = Property.objects.annotate(distance=Distance('coordinates', Point(lat, lng, srid=4326)))\
             .order_by('distance')
         if max_distance is not None:
             properties = properties.filter(distance__lte=max_distance*1000)
+        if is_available is not None:
+            properties = properties.filter(is_available=is_available)
         return properties
 
 
