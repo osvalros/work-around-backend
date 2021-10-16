@@ -7,7 +7,8 @@ from graphene_django.converter import convert_django_field
 from graphene_django.debug import DjangoDebug
 from opencage.geocoder import OpenCageGeocode
 
-from graphql_api.models import User, Property, LifestyleType, FacilityType, LengthOfStay, RoomType, City, PropertyType
+from graphql_api.models import User, Property, LifestyleType, FacilityType, LengthOfStay, RoomType, City, PropertyType, \
+    Application
 from graphql_api.utils import GeographyPoint
 from work_around import settings
 
@@ -43,7 +44,18 @@ class HealthType(graphene.ObjectType):
     running = graphene.Boolean(required=True)
 
 
+class ApplicationType(DjangoObjectType):
+    class Meta:
+        model = Application
+
+
 class UserType(DjangoObjectType):
+    applications = graphene.List(graphene.NonNull(lambda: ApplicationType))
+
+    @staticmethod
+    def resolve_applications(parent: User, info):
+        return Application.objects.filter(property__user=parent)
+
     class Meta:
         model = User
         exclude = ("password",)

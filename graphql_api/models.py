@@ -38,7 +38,7 @@ class User(AbstractUser):
 
 
 class Application(models.Model):
-    property = models.ForeignKey("Property", models.SET_NULL, blank=True, null=True)
+    property = models.ForeignKey("Property", models.SET_NULL, blank=True, null=True, related_name="applications")
     pet_friendly = models.BooleanField(blank=True, null=True)
     move_in_date = models.DateField(blank=True, null=True)
     length_of_stay = models.IntegerField(choices=LengthOfStay.choices, blank=True, null=True)
@@ -84,7 +84,7 @@ class CommuteTypeApplication(models.Model):
 
 class Property(models.Model):
     coordinates = models.PointField(geography=True)
-    user = models.ForeignKey(User, models.CASCADE)
+    user = models.ForeignKey(User, models.CASCADE, related_name="properties")
     name = models.CharField(max_length=100)
     description = models.TextField(null=True, blank=True)
     is_available = models.BooleanField(default=False)
