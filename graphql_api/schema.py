@@ -133,7 +133,7 @@ class UpdateProperty(Mutation, SuccessMixin):
         return UpdateProperty(property=property)
 
 
-class Login(graphene.Mutation):
+class Login(graphene.Mutation, SuccessMixin):
     class Arguments:
         email = graphene.String(required=True)
         password = graphene.String(required=True)
@@ -148,7 +148,7 @@ class Login(graphene.Mutation):
         return Login(me=user)
 
 
-class Register(graphene.Mutation):
+class Register(graphene.Mutation, SuccessMixin):
     class Arguments:
         username = graphene.String(required=True)
         email = graphene.String(required=True)
