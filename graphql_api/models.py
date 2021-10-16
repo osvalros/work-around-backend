@@ -70,6 +70,8 @@ class CommuteTypeApplication(models.Model):
 class Property(models.Model):
     coordinates = models.PointField(geography=True)
     user = models.ForeignKey(User, models.CASCADE)
+    name = models.CharField(max_length=100)
+    description = models.TextField(null=True, blank=True)
     is_available = models.BooleanField(default=False)
     usd_worth = models.FloatField()
     photo_id = models.CharField(max_length=50)
