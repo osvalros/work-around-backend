@@ -6,7 +6,7 @@ from graphene_django import DjangoObjectType
 from graphene_django.converter import convert_django_field
 from graphene_django.debug import DjangoDebug
 
-from graphql_api.models import User, Property, LifestyleType, FacilityType, LengthOfStay, RoomType
+from graphql_api.models import User, Property, LifestyleType, FacilityType, LengthOfStay, RoomType, PropertyType
 from graphql_api.utils import GeographyPoint
 from work_around import settings
 
@@ -56,6 +56,11 @@ class FacilityTypeType(DjangoObjectType):
         model = FacilityType
 
 
+class PropertyTypeType(DjangoObjectType):
+    class Meta:
+        model = PropertyType
+
+
 class PropertyType(DjangoObjectType):
     distance = graphene.Float(required=False, description="Distance from queried value (if queried) in kilometers.")
 
@@ -79,6 +84,7 @@ class Query(graphene.ObjectType):
                                        is_available=graphene.Boolean())
     lifestyle_types = graphene.List(graphene.NonNull(LifestyleTypeType), required=True)
     facility_types = graphene.List(graphene.NonNull(FacilityTypeType), required=True)
+    property_types = graphene.List(graphene.NonNull(PropertyTypeType), required=True)
     lengths_of_stay = graphene.List(graphene.NonNull(Int), required=True)
     room_types = graphene.List(graphene.NonNull(String), required=True)
 
@@ -110,6 +116,10 @@ class Query(graphene.ObjectType):
     @staticmethod
     def resolve_facility_types(root, info):
         return FacilityType.objects.all()
+
+    @staticmethod
+    def resolve_property_types(root, info):
+        return PropertyType.objects.all()
 
     @staticmethod
     def resolve_lengths_of_stay(root, info):
