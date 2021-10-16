@@ -83,7 +83,7 @@ class Property(models.Model):
 
 
 class FacilityTypeProperty(models.Model):
-    facility_type = models.ForeignKey(LifestyleType, models.SET_NULL, blank=True, null=True)
+    facility_type = models.ForeignKey(FacilityType, models.SET_NULL, blank=True, null=True)
     property = models.ForeignKey(Property, models.SET_NULL, blank=True, null=True)
 
 
