@@ -159,7 +159,6 @@ class CreateProperty(Mutation, SuccessMixin):
         description = String()
         coordinates = PointInputType(required=True)
         user_id = Int(required=True)
-        is_available = Boolean(required=True)
         usd_worth = Float(required=True)
 
     created_property = graphene.NonNull(PropertyType)
