@@ -77,8 +77,8 @@ class Query(graphene.ObjectType):
                                        coordinates=PointInputType(),
                                        max_distance=graphene.Float(description="Maximal distance in kilometers"),
                                        is_available=graphene.Boolean())
-    lifestyle_types = graphene.List(graphene.NonNull(LifestyleType), required=True)
-    facility_types = graphene.List(graphene.NonNull(FacilityType), required=True)
+    lifestyle_types = graphene.List(graphene.NonNull(LifestyleTypeType), required=True)
+    facility_types = graphene.List(graphene.NonNull(FacilityTypeType), required=True)
     lengths_of_stay = graphene.List(graphene.NonNull(Int), required=True)
     room_types = graphene.List(graphene.NonNull(String), required=True)
 
