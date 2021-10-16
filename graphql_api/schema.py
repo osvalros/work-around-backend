@@ -4,7 +4,7 @@ import graphene
 from django.contrib.gis.db import models
 from django.contrib.gis.db.models.functions import Distance
 from django.db import transaction
-from graphene import Field, Mutation, Boolean, String, Int, Float, ID, List
+from graphene import Field, Mutation, Boolean, String, Int, Float, ID, List, Date
 from graphene_django import DjangoObjectType
 from graphene_django.converter import convert_django_field
 from graphene_django.debug import DjangoDebug
@@ -84,7 +84,7 @@ class CommuteTypeType(DjangoObjectType):
         model = CommuteType
 
 
-class PropertyType(DjangoObjectType):
+class PropertyObjectType(DjangoObjectType):
     distance = graphene.Float(required=False, description="Distance from queried value (if queried) in kilometers.")
 
     @staticmethod
@@ -106,7 +106,7 @@ class Query(graphene.ObjectType):
     debug = graphene.Field(DjangoDebug, name='_debug') if settings.DEBUG else None
     health = graphene.Field(HealthType, required=True)
     users = graphene.List(graphene.NonNull(UserType), required=True)
-    closest_properties = graphene.List(graphene.NonNull(PropertyType), required=True,
+    closest_properties = graphene.List(graphene.NonNull(PropertyObjectType), required=True,
                                        coordinates=PointInputType(),
                                        max_distance=graphene.Float(description="Maximal distance in kilometers"),
                                        is_available=graphene.Boolean())
@@ -205,7 +205,7 @@ class CreateProperty(Mutation, SuccessMixin):
         facility_type_ids = List(graphene.NonNull(ID), required=True)
         lifestyle_type_ids = List(graphene.NonNull(ID), required=True)
 
-    created_property = graphene.NonNull(PropertyType)
+    created_property = graphene.NonNull(PropertyObjectType)
 
     @staticmethod
     @transaction.atomic
@@ -231,7 +231,7 @@ class UpdateProperty(Mutation, SuccessMixin):
         is_available = Boolean()
         usd_worth = Float()
 
-    property = Field(PropertyType)
+    property = Field(PropertyObjectType)
 
     def mutate(parent, info, property_id, coordinates=None, **kwargs):
         property_queryset = Property.objects.filter(id=property_id)
@@ -242,6 +242,38 @@ class UpdateProperty(Mutation, SuccessMixin):
 
         property_queryset.update(**{key: value for key, value in kwargs.values() if value is not None})
         return UpdateProperty(property=property_queryset.get())
+
+
+class CreateApplication(Mutation, SuccessMixin):
+    class Arguments:
+        property_id = ID(required=True)
+        length_of_stay = Int(required=True)
+        move_in_date = Date(required=True)
+        pet_friendly = Boolean(required=True)
+        preferred_cities_ids = graphene.List(graphene.NonNull(ID), required=True)
+        lifestyle_types_ids = graphene.List(graphene.NonNull(ID), required=True)
+        commute_types_ids = graphene.List(graphene.NonNull(ID), required=True)
+        property_types_ids = graphene.List(graphene.NonNull(ID), required=True)
+        facility_types_ids = graphene.List(graphene.NonNull(ID), required=True)
+
+    created_application = Field(ApplicationType)
+
+    @staticmethod
+    @transaction.atomic
+    def mutate(parent, info,
+               preferred_cities_ids: typing.List[str],
+               lifestyle_types_ids: typing.List[str],
+               commute_types_ids: typing.List[str],
+               property_types_ids: typing.List[str],
+               facility_types_ids: typing.List[str],
+               **kwargs):
+        created_application = Application.objects.create(**kwargs)
+        created_application.preferred_cities.set(City.objects.filter(id__in=preferred_cities_ids))
+        created_application.lifestyle_types.set(LifestyleType.objects.filter(id__in=lifestyle_types_ids))
+        created_application.commute_types.set(CommuteType.objects.filter(id__in=commute_types_ids))
+        created_application.property_types.set(PropertyType.objects.filter(id__in=property_types_ids))
+        created_application.facility_types.set(FacilityType.objects.filter(id__in=facility_types_ids))
+        return CreateApplication(created_application=created_application)
 
 
 class Login(graphene.Mutation, SuccessMixin):
@@ -279,6 +311,7 @@ class Mutation(graphene.ObjectType):
     update_user = UpdateUser.Field()
     update_property = UpdateProperty.Field()
     create_property = CreateProperty.Field()
+    create_application = CreateApplication.Field()
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
