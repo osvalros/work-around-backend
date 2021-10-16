@@ -47,6 +47,8 @@ class Application(models.Model):
                                              related_name="applications")
     commute_types = models.ManyToManyField("graphql_api.CommuteType", through="CommuteTypeApplication",
                                            related_name="applications")
+    facility_types = models.ManyToManyField("graphql_api.FacilityType", through="FacilityTypeApplication",
+                                            related_name="applications")
     preferred_cities = models.ManyToManyField(City)
 
 
@@ -80,6 +82,11 @@ class CommuteType(models.Model):
 class CommuteTypeApplication(models.Model):
     commute_type = models.ForeignKey(CommuteType, models.SET_NULL, blank=True, null=True)
     application = models.ForeignKey(Application, models.SET_NULL, blank=True, null=True)
+
+
+class FacilityTypeApplication(models.Model):
+    facility_type = models.ForeignKey(FacilityType, models.CASCADE)
+    application = models.ForeignKey(Application, models.CASCADE)
 
 
 class Property(models.Model):
