@@ -6,7 +6,7 @@ from graphene_django import DjangoObjectType
 from graphene_django.converter import convert_django_field
 from graphene_django.debug import DjangoDebug
 
-from graphql_api.models import User, Property
+from graphql_api.models import User, Property, LifestyleType, FacilityType, LengthOfStay, RoomType
 from graphql_api.utils import GeographyPoint
 from work_around import settings
 
@@ -46,6 +46,16 @@ class UserType(DjangoObjectType):
         exclude = ("password",)
 
 
+class LifestyleTypeType(DjangoObjectType):
+    class Meta:
+        model = LifestyleType
+
+
+class FacilityTypeType(DjangoObjectType):
+    class Meta:
+        model = FacilityType
+
+
 class PropertyType(DjangoObjectType):
     distance = graphene.Float(required=False, description="Distance from queried value (if queried) in kilometers.")
 
@@ -67,6 +77,10 @@ class Query(graphene.ObjectType):
                                        coordinates=PointInputType(),
                                        max_distance=graphene.Float(description="Maximal distance in kilometers"),
                                        is_available=graphene.Boolean())
+    lifestyle_types = graphene.List(graphene.NonNull(LifestyleType), required=True)
+    facility_types = graphene.List(graphene.NonNull(FacilityType), required=True)
+    lengths_of_stay = graphene.List(graphene.NonNull(Int), required=True)
+    room_types = graphene.List(graphene.NonNull(String), required=True)
 
     @staticmethod
     def resolve_health(root, info):
@@ -88,6 +102,22 @@ class Query(graphene.ObjectType):
         if is_available is not None:
             properties = properties.filter(is_available=is_available)
         return properties
+
+    @staticmethod
+    def resolve_lifestyle_types(root, info):
+        return LifestyleType.objects.all()
+
+    @staticmethod
+    def resolve_facility_types(root, info):
+        return FacilityType.objects.all()
+
+    @staticmethod
+    def resolve_lengths_of_stay(root, info):
+        return [e.value for e in LengthOfStay]
+
+    @staticmethod
+    def resolve_room_types(root, info):
+        return [e.value for e in RoomType]
 
 
 class SuccessMixin:
