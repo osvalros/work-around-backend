@@ -5,10 +5,13 @@ from graphene import Field, Mutation, Boolean, String, Int, Float, ID, List
 from graphene_django import DjangoObjectType
 from graphene_django.converter import convert_django_field
 from graphene_django.debug import DjangoDebug
+from opencage.geocoder import OpenCageGeocode
 
-from graphql_api.models import User, Property, LifestyleType, FacilityType, LengthOfStay, RoomType, PropertyType
+from graphql_api.models import User, Property, LifestyleType, FacilityType, LengthOfStay, RoomType, City, PropertyType
 from graphql_api.utils import GeographyPoint
 from work_around import settings
+
+geocoder = OpenCageGeocode(settings.OPEN_CAGE_API_KEY)
 
 
 class PointTypeMixin:
@@ -163,8 +166,10 @@ class CreateProperty(Mutation, SuccessMixin):
 
     created_property = graphene.NonNull(PropertyType)
 
-    def mutate(parent, info, **kwargs):
-        return CreateProperty(created_property=Property.objects.create(**kwargs))
+    def mutate(parent, info, coordinates, **kwargs):
+        geocoder_result = geocoder.reverse_geocode(coordinates.x, coordinates.y)
+        city = City.objects.get_or_create(name=geocoder_result["city"], country=geocoder_result["country"])
+        return CreateProperty(created_property=Property.objects.create(**kwargs, coordinates=coordinates, city=city))
 
 
 class UpdateProperty(Mutation, SuccessMixin):
@@ -179,8 +184,13 @@ class UpdateProperty(Mutation, SuccessMixin):
 
     property = Field(PropertyType)
 
-    def mutate(parent, info, property_id, **kwargs):
+    def mutate(parent, info, property_id, coordinates=None, **kwargs):
         property_queryset = Property.objects.filter(id=property_id)
+        if coordinates is not None:
+            geocoder_result = geocoder.reverse_geocode(coordinates.x, coordinates.y)
+            city = City.objects.get_or_create(name=geocoder_result["city"], country=geocoder_result["country"])
+            kwargs.update(coordinates=coordinates, city=city)
+
         property_queryset.update(**{key: value for key, value in kwargs.values() if value is not None})
         return UpdateProperty(property=property_queryset.get())
 

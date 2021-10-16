@@ -21,6 +21,7 @@ env = environ.Env(
     DATABASE_USER=(str, 'work_around_user'),
     DATABASE_PASSWORD=(str, 'workaround1234'),
     DATABASE_PORT=(str, '5432'),
+    OPEN_CAGE_API_KEY=(str, '5dd1b2de544444e7aefb94afd0ce71e5'),
 )
 
 environ.Env.read_env()
@@ -172,3 +173,5 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 GRAPHENE = {
     "SCHEMA": "graphql_api.schema.schema"
 }
+
+OPEN_CAGE_API_KEY = env("OPEN_CAGE_API_KEY")

@@ -6,3 +6,4 @@ django-graphql-jwt==0.3.2
 django-graphql-playground==1.0
 graphene-django==3.0.0b7
 psycopg2==2.9.1
+opencage==2.0.0
