@@ -198,8 +198,8 @@ class CreateProperty(Mutation, SuccessMixin):
         meters_squared = Float()
         property_type = ID()
         room_type = String()
-        facility_types = List(ID())
-        lifestyle_types = List(ID())
+        facility_types = List(ID)
+        lifestyle_types = List(ID)
 
     property = Field(PropertyType)
 
