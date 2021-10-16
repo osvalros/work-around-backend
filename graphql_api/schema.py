@@ -1,11 +1,8 @@
-import json
-
 import graphene
 from django.contrib.gis.db import models
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point
-from django.contrib.auth.models import User
-from graphene import ObjectType, Field, Mutation, Boolean, String, Int, Float
+from graphene import Field, Mutation, Boolean, String, Int, Float
 from graphene_django import DjangoObjectType
 from graphene_django.converter import convert_django_field
 from graphene_django.debug import DjangoDebug
@@ -14,16 +11,26 @@ from graphql_api.models import User, Property
 from work_around import settings
 
 
-class GeoJSON(graphene.Scalar):
-    @classmethod
-    def serialize(cls, value):
-        return json.loads(value.geojson)
+class PointTypeMixin:
+    x = graphene.Float(required=True)
+    y = graphene.Float(required=True)
+
+    def get_point(self):
+        return Point(self.x, self.y, srid=4326)
 
 
-@convert_django_field.register(models.GeometryField)
-def convert_field_to_geojson(field, registry=None):
+class PointType(graphene.ObjectType, PointTypeMixin):
+    pass
+
+
+class PointInputType(graphene.InputObjectType, PointTypeMixin):
+    pass
+
+
+@convert_django_field.register(models.PointField)
+def convert_point_field_to_type(field, registry=None):
     return graphene.Field(
-        GeoJSON,
+        PointType,
         description=field.help_text,
         required=not field.null)
 
@@ -107,7 +114,7 @@ class UpdateUser(Mutation, SuccessMixin):
 class UpdateProperty(Mutation, SuccessMixin):
     class Arguments:
         property_id = Int(required=True)
-        coordinates = GeoJSON()
+        coordinates = PointInputType()
         user_id = Int()
         is_available = Boolean()
         usd_worth = Float()
@@ -116,7 +123,7 @@ class UpdateProperty(Mutation, SuccessMixin):
 
     def mutate(parent, info, property_id, coordinates=None, user_id=None, is_available=None, usd_worth=None):
         property = Property.objects.get(id=property_id)
-        if coordinates: property.coordinates = coordinates
+        if coordinates: property.coordinates = coordinates.get_point()
         if user_id: property.user_id = user_id
         if is_available: property.is_available = is_available
         if usd_worth: property.usd_worth = usd_worth
