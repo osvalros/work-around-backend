@@ -3,5 +3,5 @@ Django==3.2.8
 django-environ==0.4.5
 django-graphql-jwt==0.3.2
 django-graphql-playground==1.0
-graphene-django==2.15.0
+graphene-django==3.0.0b7
 psycopg2==2.9.1
