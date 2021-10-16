@@ -59,7 +59,7 @@ class ApplicationPreferredCity(models.Model):
 
 
 class LifestyleType(models.Model):
-    name = models.TextField(blank=True, null=True)
+    name = models.TextField()
 
 
 class LifestyleTypeApplication(models.Model):
@@ -68,15 +68,15 @@ class LifestyleTypeApplication(models.Model):
 
 
 class PropertyType(models.Model):
-    name = models.TextField(blank=True, null=True)
+    name = models.TextField()
 
 
 class FacilityType(models.Model):
-    name = models.TextField(blank=True, null=True)
+    name = models.TextField()
 
 
 class CommuteType(models.Model):
-    name = models.TextField(blank=True, null=True)
+    name = models.TextField()
 
 
 class CommuteTypeApplication(models.Model):
