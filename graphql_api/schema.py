@@ -1,7 +1,10 @@
 import graphene
 from django.contrib.auth.models import User
-from graphene import ObjectType
+from graphene import ObjectType, Field
 from graphene_django import DjangoObjectType
+from graphene_django.debug import DjangoDebug
+
+from work_around import settings
 
 
 class HealthType(ObjectType):
@@ -14,7 +17,7 @@ class UserType(DjangoObjectType):
         exclude = ("password",)
 
 
-class Query(graphene.ObjectType):
+class DefaultQuery(graphene.ObjectType):
     health = graphene.Field(HealthType, required=True)
     users = graphene.List(graphene.NonNull(UserType), required=True)
 
@@ -27,4 +30,17 @@ class Query(graphene.ObjectType):
         return User.objects.all()
 
 
-schema = graphene.Schema(query=Query)
+class Query(
+    DefaultQuery,
+):
+    debug = Field(DjangoDebug, name='_debug') if settings.DEBUG else None
+    pass
+
+
+class Mutation(
+):
+    debug = Field(DjangoDebug, name='_debug') if settings.DEBUG else None
+    pass
+
+
+schema = graphene.Schema(query=Query, mutation=Mutation)
