@@ -36,7 +36,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This is a code repository for backend of Work around project, that was created as solution of Hackprague 2021 challenge.
+This is a code repository for backend of Work Around project, that was created as solution of Hackprague 2021 challenge.
 
 ### Built With
 
