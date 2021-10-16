@@ -4,6 +4,8 @@ import graphene
 from django.contrib.gis.db import models
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point
+from django.contrib.auth.models import User
+from graphene import ObjectType, Field, Mutation, Boolean, String, Int, Float
 from graphene_django import DjangoObjectType
 from graphene_django.converter import convert_django_field
 from graphene_django.debug import DjangoDebug
@@ -62,8 +64,53 @@ class Query(graphene.ObjectType):
             .order_by('distance')
 
 
+class SuccessMixin:
+    success = Boolean(required=True)
+
+    def resolve_success(parent, info):
+        return parent.success if parent.success is not None else True
+
+
+class UpdateUser(Mutation, SuccessMixin):
+    class Arguments:
+        user_id = Int(required=True)
+        first_name = String()
+        last_name = String()
+
+    user = Field(UserType)
+
+    def mutate(parent, info, user_id, first_name=None, last_name=None):
+        user = User.objects.get(id=user_id)
+        if first_name: user.first_name = first_name
+        if last_name: user.last_name = last_name
+        user.save()
+        return UpdateUser(user=user)
+
+
+class UpdateProperty(Mutation, SuccessMixin):
+    class Arguments:
+        property_id = Int(required=True)
+        coordinates = GeoJSON()
+        user = Int()
+        is_available = Boolean()
+        usd_worth = Float()
+
+    property = Field(PropertyType)
+
+    def mutate(parent, info, property_id, coordinates=None, user=None, is_available=None, usd_worth=None):
+        property = Property.objects.get(id=property_id)
+        if coordinates: property.coordinates = coordinates
+        if user: property.user = user
+        if is_available: property.is_available = is_available
+        if usd_worth: property.usd_worth = usd_worth
+        property.save()
+        return UpdateProperty(property=property)
+
+
 class Mutation:
     debug = graphene.Field(DjangoDebug, name='_debug') if settings.DEBUG else None
+    update_user = UpdateUser.Field()
+    update_property = UpdateProperty.Field()
     pass
 
 
