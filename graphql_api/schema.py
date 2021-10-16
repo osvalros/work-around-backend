@@ -32,7 +32,8 @@ def convert_point_field_to_type(field, registry=None):
     return graphene.Field(
         PointType,
         description=field.help_text,
-        required=not field.null)
+        required=not field.null
+    )
 
 
 class HealthType(graphene.ObjectType):
