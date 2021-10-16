@@ -30,7 +30,7 @@ class User(AbstractUser):
 
 
 class Application(models.Model):
-    user = models.ForeignKey(User, models.SET_NULL, blank=True, null=True)
+    property = models.ForeignKey("Property", models.SET_NULL, blank=True, null=True)
     pet_friendly = models.BooleanField(blank=True, null=True)
     move_in_date = models.DateField(blank=True, null=True)
     length_of_stay = models.IntegerField(choices=LengthOfStay.choices, blank=True, null=True)
