@@ -179,7 +179,7 @@ class CreateProperty(Mutation, SuccessMixin):
     def mutate(parent, info, coordinates, **kwargs):
         geocoder_result = geocoder.reverse_geocode(coordinates.x, coordinates.y)
         city = City.objects.get_or_create(name=geocoder_result["city"], country=geocoder_result["country"])
-        return CreateProperty(created_property=Property.objects.create(**kwargs, coordinates=coordinates, city=city))
+        return CreateProperty(created_property=Property.objects.create(**kwargs, coordinates=coordinates.get_point(), city=city))
 
 
 class UpdateProperty(Mutation, SuccessMixin):
@@ -199,7 +199,7 @@ class UpdateProperty(Mutation, SuccessMixin):
         if coordinates is not None:
             geocoder_result = geocoder.reverse_geocode(coordinates.x, coordinates.y)
             city = City.objects.get_or_create(name=geocoder_result["city"], country=geocoder_result["country"])
-            kwargs.update(coordinates=coordinates, city=city)
+            kwargs.update(coordinates=coordinates.get_point(), city=city)
 
         property_queryset.update(**{key: value for key, value in kwargs.values() if value is not None})
         return UpdateProperty(property=property_queryset.get())
