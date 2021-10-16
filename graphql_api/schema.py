@@ -187,7 +187,7 @@ class CreateProperty(Mutation, SuccessMixin):
         coordinates = PointInputType(required=True)
         user_id = Int(required=True)
         usd_worth = Float(required=True)
-        photo_id = Int(required=True)
+        photo_id = String(required=True)
         meters_squared = Float(required=True)
         property_type_id = ID(required=True)
         room_type = String(required=True)
