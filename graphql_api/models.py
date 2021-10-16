@@ -35,6 +35,10 @@ class Application(models.Model):
     move_in_date = models.DateField(blank=True, null=True)
     length_of_stay = models.IntegerField(choices=LengthOfStay.choices, blank=True, null=True)
     room_type = models.TextField(choices=RoomType.choices, blank=True, null=True)
+    lifestyle_types = models.ManyToManyField("graphql_api.LifestyleType", through="LifestyleTypeApplication",
+                                             related_name="applications")
+    commute_types = models.ManyToManyField("graphql_api.CommuteType", through="CommuteTypeApplication",
+                                           related_name="applications")
 
 
 class LifestyleType(models.Model):
@@ -42,7 +46,7 @@ class LifestyleType(models.Model):
 
 
 class LifestyleTypeApplication(models.Model):
-    lifestyleType = models.ForeignKey(LifestyleType, models.SET_NULL, blank=True, null=True)
+    lifestyle_type = models.ForeignKey(LifestyleType, models.SET_NULL, blank=True, null=True)
     application = models.ForeignKey(Application, models.SET_NULL, blank=True, null=True)
 
 
@@ -59,7 +63,7 @@ class CommuteType(models.Model):
 
 
 class CommuteTypeApplication(models.Model):
-    commuteType = models.ForeignKey(CommuteType, models.SET_NULL, blank=True, null=True)
+    commute_type = models.ForeignKey(CommuteType, models.SET_NULL, blank=True, null=True)
     application = models.ForeignKey(Application, models.SET_NULL, blank=True, null=True)
 
 
@@ -70,12 +74,16 @@ class Property(models.Model):
     usd_worth = models.FloatField()
     photo_id = models.IntegerField()
     meters_squared = models.IntegerField()
-    propertyType = models.ForeignKey(PropertyType, models.SET_NULL, blank=True, null=True)
+    property_type = models.ForeignKey(PropertyType, models.SET_NULL, blank=True, null=True)
     room_type = models.TextField(choices=RoomType.choices, blank=True, null=True)
+    facility_types = models.ManyToManyField("graphql_api.FacilityType", through="FacilityTypeProperty",
+                                            related_name="properties")
+    lifestyle_types = models.ManyToManyField("graphql_api.LifestyleType", through="LifestyleTypeProperty",
+                                             related_name="properties")
 
 
 class FacilityTypeProperty(models.Model):
-    facilityType = models.ForeignKey(LifestyleType, models.SET_NULL, blank=True, null=True)
+    facility_type = models.ForeignKey(LifestyleType, models.SET_NULL, blank=True, null=True)
     property = models.ForeignKey(Property, models.SET_NULL, blank=True, null=True)
 
 
@@ -86,5 +94,5 @@ class PropertyRentals(models.Model):
 
 
 class LifestyleTypeProperty(models.Model):
-    lifestyleType = models.ForeignKey(LifestyleType, models.SET_NULL, blank=True, null=True)
+    lifestyle_type = models.ForeignKey(LifestyleType, models.SET_NULL, blank=True, null=True)
     property = models.ForeignKey(Property, models.SET_NULL, blank=True, null=True)
