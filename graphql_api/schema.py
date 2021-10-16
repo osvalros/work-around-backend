@@ -79,10 +79,10 @@ class Query(graphene.ObjectType):
     @staticmethod
     def resolve_closest_properties(root, info, lat: float, lng: float, max_distance: float = None,
                                    is_available: bool = None):
-        properties = Property.objects.annotate(distance=Distance('coordinates', Point(lat, lng, srid=4326)))\
+        properties = Property.objects.annotate(distance=Distance('coordinates', Point(lat, lng, srid=4326))) \
             .order_by('distance')
         if max_distance is not None:
-            properties = properties.filter(distance__lte=max_distance*1000)
+            properties = properties.filter(distance__lte=max_distance * 1000)
         if is_available is not None:
             properties = properties.filter(is_available=is_available)
         return properties
