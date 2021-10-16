@@ -119,8 +119,35 @@ class UpdateProperty(Mutation, SuccessMixin):
         return UpdateProperty(property=property)
 
 
+class Login(graphene.Mutation):
+    class Arguments:
+        email = graphene.String(required=True)
+        password = graphene.String(required=True)
+
+    me = graphene.NonNull(UserType)
+
+    @staticmethod
+    def mutate(root, info, email, password):
+        return Login(me=User.objects.get(email=email))
+
+
+class Register(graphene.Mutation):
+    class Arguments:
+        username = graphene.String(required=True)
+        email = graphene.String(required=True)
+        password = graphene.String(required=True)
+
+    me = graphene.NonNull(UserType)
+
+    @staticmethod
+    def mutate(root, info, username, email, password):
+        return User.objects.create_user(username=username, email=email, password=password)
+
+
 class Mutation(graphene.ObjectType):
     debug = graphene.Field(DjangoDebug, name='_debug') if settings.DEBUG else None
+    register = Register.Field()
+    login = Login.Field()
     update_user = UpdateUser.Field()
     update_property = UpdateProperty.Field()
 
