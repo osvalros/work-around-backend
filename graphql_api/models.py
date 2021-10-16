@@ -42,7 +42,6 @@ class Application(models.Model):
     pet_friendly = models.BooleanField(blank=True, null=True)
     move_in_date = models.DateField(blank=True, null=True)
     length_of_stay = models.IntegerField(choices=LengthOfStay.choices, blank=True, null=True)
-    room_type = models.TextField(choices=RoomType.choices, blank=True, null=True)
     lifestyle_types = models.ManyToManyField("graphql_api.LifestyleType", through="LifestyleTypeApplication",
                                              related_name="applications")
     commute_types = models.ManyToManyField("graphql_api.CommuteType", through="CommuteTypeApplication",
