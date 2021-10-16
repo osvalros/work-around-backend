@@ -45,6 +45,8 @@ class Query(graphene.ObjectType):
     debug = graphene.Field(DjangoDebug, name='_debug') if settings.DEBUG else None
     health = graphene.Field(HealthType, required=True)
     users = graphene.List(graphene.NonNull(UserType), required=True)
+    closest_properties = graphene.List(graphene.NonNull(PropertyType), required=True,
+                                       lat=graphene.Float(required=True), lng=graphene.Float(required=True))
 
     @staticmethod
     def resolve_health(root, info):
@@ -53,6 +55,11 @@ class Query(graphene.ObjectType):
     @staticmethod
     def resolve_users(root, info):
         return User.objects.all()
+
+    @staticmethod
+    def resolve_closest_properties(root, info, lat: float, lng: float):
+        return Property.objects.annotate(distance=Distance('coordinates', Point(lat, lng, srid=4326)))\
+            .order_by('distance')
 
 
 class Mutation:
