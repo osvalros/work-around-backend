@@ -143,6 +143,21 @@ class UpdateUser(Mutation, SuccessMixin):
         return UpdateUser(user=user)
 
 
+class CreateProperty(Mutation, SuccessMixin):
+    class Arguments:
+        name = String(required=True)
+        description = String()
+        coordinates = PointInputType(required=True)
+        user_id = Int(required=True)
+        is_available = Boolean(required=True)
+        usd_worth = Float(required=True)
+
+    created_property = graphene.NonNull(PropertyType)
+
+    def mutate(parent, info, **kwargs):
+        return CreateProperty(created_property=Property.objects.create(**kwargs))
+
+
 class UpdateProperty(Mutation, SuccessMixin):
     class Arguments:
         property_id = Int(required=True)
@@ -197,6 +212,7 @@ class Mutation(graphene.ObjectType):
     login = Login.Field()
     update_user = UpdateUser.Field()
     update_property = UpdateProperty.Field()
+    create_property = CreateProperty.Field()
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
