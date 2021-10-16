@@ -3,6 +3,7 @@ import typing
 import graphene
 from django.contrib.gis.db import models
 from django.contrib.gis.db.models.functions import Distance
+from django.db import transaction
 from graphene import Field, Mutation, Boolean, String, Int, Float, ID, List
 from graphene_django import DjangoObjectType
 from graphene_django.converter import convert_django_field
@@ -197,14 +198,16 @@ class CreateProperty(Mutation, SuccessMixin):
     created_property = graphene.NonNull(PropertyType)
 
     @staticmethod
+    @transaction.atomic
     def mutate(root, info, coordinates, facility_type_ids: typing.List[str], lifestyle_type_ids: typing.List[str],
                **kwargs):
         facility_types = FacilityType.objects.filter(id__in=facility_type_ids)
         lifestyle_types = LifestyleType.objects.filter(id__in=lifestyle_type_ids)
-        geocoder_result = geocoder.reverse_geocode(coordinates.x, coordinates.y)
-        city = City.objects.get_or_create(name=geocoder_result["city"], country=geocoder_result["country"])
-        created_property = Property.objects.create(**kwargs, coordinates=coordinates.get_point(), city=city,
-                                                   facility_types=facility_types, lifestyle_types=lifestyle_types)
+        geocoder_result = geocoder.reverse_geocode(coordinates.x, coordinates.y)[0]["components"]
+        city, _ = City.objects.get_or_create(name=geocoder_result["city"], country=geocoder_result["country"])
+        created_property = Property.objects.create(**kwargs, coordinates=coordinates.get_point(), city=city)
+        created_property.facility_types.set(facility_types)
+        created_property.lifestyle_types.set(lifestyle_types)
         return CreateProperty(created_property=created_property)
 
 
