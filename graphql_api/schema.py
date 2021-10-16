@@ -119,11 +119,10 @@ class UpdateProperty(Mutation, SuccessMixin):
         return UpdateProperty(property=property)
 
 
-class Mutation:
+class Mutation(graphene.ObjectType):
     debug = graphene.Field(DjangoDebug, name='_debug') if settings.DEBUG else None
     update_user = UpdateUser.Field()
     update_property = UpdateProperty.Field()
-    pass
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
