@@ -39,6 +39,14 @@ class UserType(DjangoObjectType):
 
 
 class PropertyType(DjangoObjectType):
+    distance = graphene.Float(required=False, description="Distance from queried value (if queried) in kilometers.")
+
+    @staticmethod
+    def resolve_distance(parent, info):
+        if not hasattr(parent, "distance"):
+            return None
+        return parent.distance.m / 1000
+
     class Meta:
         model = Property
 
@@ -48,7 +56,7 @@ class Query(graphene.ObjectType):
     health = graphene.Field(HealthType, required=True)
     users = graphene.List(graphene.NonNull(UserType), required=True)
     closest_properties = graphene.List(graphene.NonNull(PropertyType), required=True,
-                                       lat=graphene.Float(required=True), lng=graphene.Float(required=True),
+                                       lat=graphene.Float(default_value=50.083076), lng=graphene.Float(default_value=14.420020),
                                        max_distance=graphene.Float(description="Maximal distance in kilometers"))
 
     @staticmethod
