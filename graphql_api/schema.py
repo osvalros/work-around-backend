@@ -128,7 +128,10 @@ class Login(graphene.Mutation):
 
     @staticmethod
     def mutate(root, info, email, password):
-        return Login(me=User.objects.get(email=email))
+        user = User.objects.get(email=email)
+        if not user.check_password(password):
+            raise Exception("Wrong password.")
+        return Login(me=user)
 
 
 class Register(graphene.Mutation):
