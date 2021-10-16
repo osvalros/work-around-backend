@@ -141,7 +141,7 @@ class Register(graphene.Mutation):
 
     @staticmethod
     def mutate(root, info, username, email, password):
-        return User.objects.create_user(username=username, email=email, password=password)
+        return Register(me=User.objects.create_user(username=username, email=email, password=password))
 
 
 class Mutation(graphene.ObjectType):
