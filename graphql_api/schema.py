@@ -161,6 +161,8 @@ class CreateProperty(Mutation, SuccessMixin):
 class UpdateProperty(Mutation, SuccessMixin):
     class Arguments:
         property_id = Int(required=True)
+        name = String()
+        description = String()
         coordinates = PointInputType()
         user_id = Int()
         is_available = Boolean()
@@ -168,14 +170,10 @@ class UpdateProperty(Mutation, SuccessMixin):
 
     property = Field(PropertyType)
 
-    def mutate(parent, info, property_id, coordinates=None, user_id=None, is_available=None, usd_worth=None):
-        property = Property.objects.get(id=property_id)
-        if coordinates: property.coordinates = coordinates.get_point()
-        if user_id: property.user_id = user_id
-        if is_available: property.is_available = is_available
-        if usd_worth: property.usd_worth = usd_worth
-        property.save()
-        return UpdateProperty(property=property)
+    def mutate(parent, info, property_id, **kwargs):
+        property_queryset = Property.objects.filter(id=property_id)
+        property_queryset.update(**{key: value for key, value in kwargs.values() if value is not None})
+        return UpdateProperty(property=property_queryset.get())
 
 
 class Login(graphene.Mutation, SuccessMixin):
