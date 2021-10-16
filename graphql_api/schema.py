@@ -1,14 +1,30 @@
+import json
+
 import graphene
-from graphene import Field
-from graphene import ObjectType
+from django.contrib.gis.db import models
+from django.contrib.gis.db.models.functions import Distance
+from django.contrib.gis.geos import Point
 from graphene_django import DjangoObjectType
-from graphene_django.debug import DjangoDebug
+from graphene_django.converter import convert_django_field
 
-from graphql_api.models import User
-from work_around import settings
+from graphql_api.models import User, Property
 
 
-class HealthType(ObjectType):
+class GeoJSON(graphene.Scalar):
+    @classmethod
+    def serialize(cls, value):
+        return json.loads(value.geojson)
+
+
+@convert_django_field.register(models.GeometryField)
+def convert_field_to_geojson(field, registry=None):
+    return graphene.Field(
+        GeoJSON,
+        description=field.help_text,
+        required=not field.null)
+
+
+class HealthType(graphene.ObjectType):
     running = graphene.Boolean(required=True)
 
 
