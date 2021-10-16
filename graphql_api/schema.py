@@ -103,16 +103,16 @@ class UpdateProperty(Mutation, SuccessMixin):
     class Arguments:
         property_id = Int(required=True)
         coordinates = GeoJSON()
-        user = Int()
+        user_id = Int()
         is_available = Boolean()
         usd_worth = Float()
 
     property = Field(PropertyType)
 
-    def mutate(parent, info, property_id, coordinates=None, user=None, is_available=None, usd_worth=None):
+    def mutate(parent, info, property_id, coordinates=None, user_id=None, is_available=None, usd_worth=None):
         property = Property.objects.get(id=property_id)
         if coordinates: property.coordinates = coordinates
-        if user: property.user = user
+        if user_id: property.user_id = user_id
         if is_available: property.is_available = is_available
         if usd_worth: property.usd_worth = usd_worth
         property.save()
