@@ -46,7 +46,8 @@ class Query(graphene.ObjectType):
     health = graphene.Field(HealthType, required=True)
     users = graphene.List(graphene.NonNull(UserType), required=True)
     closest_properties = graphene.List(graphene.NonNull(PropertyType), required=True,
-                                       lat=graphene.Float(required=True), lng=graphene.Float(required=True))
+                                       lat=graphene.Float(required=True), lng=graphene.Float(required=True),
+                                       max_distance=graphene.Float(description="Maximal distance in kilometers"))
 
     @staticmethod
     def resolve_health(root, info):
@@ -57,9 +58,12 @@ class Query(graphene.ObjectType):
         return User.objects.all()
 
     @staticmethod
-    def resolve_closest_properties(root, info, lat: float, lng: float):
-        return Property.objects.annotate(distance=Distance('coordinates', Point(lat, lng, srid=4326)))\
+    def resolve_closest_properties(root, info, lat: float, lng: float, max_distance: float = None):
+        properties = Property.objects.annotate(distance=Distance('coordinates', Point(lat, lng, srid=4326)))\
             .order_by('distance')
+        if max_distance is not None:
+            properties = properties.filter(distance__lte=max_distance*1000)
+        return properties
 
 
 class Mutation:
