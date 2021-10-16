@@ -25,6 +25,14 @@ class RoomType(models.TextChoices):
     OTHER = "other"
 
 
+class City(models.Model):
+    name = models.CharField(max_length=100)
+    country = models.CharField(max_length=100, null=True, blank=True)
+
+    class Meta:
+        unique_together = ("name", "country")
+
+
 class User(AbstractUser):
     email = models.EmailField(unique=True)
 
@@ -39,6 +47,13 @@ class Application(models.Model):
                                              related_name="applications")
     commute_types = models.ManyToManyField("graphql_api.CommuteType", through="CommuteTypeApplication",
                                            related_name="applications")
+    preferred_cities = models.ManyToManyField(City)
+
+
+class ApplicationPreferredCity(models.Model):
+    application = models.ForeignKey(Application, models.CASCADE)
+    city = models.ForeignKey(City, models.CASCADE)
+    order = models.IntegerField()
 
 
 class LifestyleType(models.Model):
@@ -82,6 +97,7 @@ class Property(models.Model):
                                             related_name="properties")
     lifestyle_types = models.ManyToManyField("graphql_api.LifestyleType", through="LifestyleTypeProperty",
                                              related_name="properties")
+    city = models.ForeignKey(City, models.SET_NULL, blank=True, null=True)
 
 
 class FacilityTypeProperty(models.Model):
