@@ -68,7 +68,6 @@ class Query(graphene.ObjectType):
         return properties
 
 
-class Mutation(graphene.ObjectType):
 class SuccessMixin:
     success = Boolean(required=True)
 
