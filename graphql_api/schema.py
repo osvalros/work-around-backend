@@ -34,6 +34,11 @@ class UserType(DjangoObjectType):
         exclude = ("password",)
 
 
+class PropertyType(DjangoObjectType):
+    class Meta:
+        model = Property
+
+
 class Query(graphene.ObjectType):
     debug = Field(DjangoDebug, name='_debug') if settings.DEBUG else None
     health = graphene.Field(HealthType, required=True)
