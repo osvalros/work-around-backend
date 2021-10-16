@@ -8,14 +8,11 @@ from graphene import Field, Mutation, Boolean, String, Int, Float, ID, List, Dat
 from graphene_django import DjangoObjectType
 from graphene_django.converter import convert_django_field
 from graphene_django.debug import DjangoDebug
-from opencage.geocoder import OpenCageGeocode
 
 from graphql_api.models import User, Property, LifestyleType, FacilityType, LengthOfStay, RoomType, City, PropertyType, \
     Application, CommuteType
-from graphql_api.utils import GeographyPoint
+from graphql_api.utils import GeographyPoint, get_city
 from work_around import settings
-
-geocoder = OpenCageGeocode(settings.OPEN_CAGE_API_KEY)
 
 
 class PointTypeMixin:
@@ -85,7 +82,12 @@ class CommuteTypeType(DjangoObjectType):
 
 
 class PropertyObjectType(DjangoObjectType):
+    room_type = graphene.String()
     distance = graphene.Float(required=False, description="Distance from queried value (if queried) in kilometers.")
+
+    @staticmethod
+    def resolve_room_type(parent: Property, info):
+        return parent.room_type
 
     @staticmethod
     def resolve_distance(parent, info):
@@ -213,9 +215,8 @@ class CreateProperty(Mutation, SuccessMixin):
                **kwargs):
         facility_types = FacilityType.objects.filter(id__in=facility_type_ids)
         lifestyle_types = LifestyleType.objects.filter(id__in=lifestyle_type_ids)
-        geocoder_result = geocoder.reverse_geocode(coordinates.x, coordinates.y)[0]["components"]
-        city, _ = City.objects.get_or_create(name=geocoder_result["city"], country=geocoder_result["country"])
-        created_property = Property.objects.create(**kwargs, coordinates=coordinates.get_point(), city=city)
+        created_property = Property.objects.create(**kwargs, coordinates=coordinates.get_point(),
+                                                   city=get_city(coordinates))
         created_property.facility_types.set(facility_types)
         created_property.lifestyle_types.set(lifestyle_types)
         return CreateProperty(created_property=created_property)
@@ -236,9 +237,7 @@ class UpdateProperty(Mutation, SuccessMixin):
     def mutate(parent, info, property_id, coordinates=None, **kwargs):
         property_queryset = Property.objects.filter(id=property_id)
         if coordinates is not None:
-            geocoder_result = geocoder.reverse_geocode(coordinates.x, coordinates.y)
-            city = City.objects.get_or_create(name=geocoder_result["city"], country=geocoder_result["country"])
-            kwargs.update(coordinates=coordinates.get_point(), city=city)
+            kwargs.update(coordinates=coordinates.get_point(), city=get_city(coordinates))
 
         property_queryset.update(**{key: value for key, value in kwargs.values() if value is not None})
         return UpdateProperty(property=property_queryset.get())
