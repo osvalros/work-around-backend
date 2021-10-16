@@ -1,3 +1,5 @@
+import typing
+
 import graphene
 from django.contrib.gis.db import models
 from django.contrib.gis.db.models.functions import Distance
@@ -185,13 +187,25 @@ class CreateProperty(Mutation, SuccessMixin):
         coordinates = PointInputType(required=True)
         user_id = Int(required=True)
         usd_worth = Float(required=True)
+        photo_id = Int(required=True)
+        meters_squared = Float(required=True)
+        property_type_id = ID(required=True)
+        room_type = String(required=True)
+        facility_type_ids = List(graphene.NonNull(ID), required=True)
+        lifestyle_type_ids = List(graphene.NonNull(ID), required=True)
 
     created_property = graphene.NonNull(PropertyType)
 
-    def mutate(parent, info, coordinates, **kwargs):
+    @staticmethod
+    def mutate(root, info, coordinates, facility_type_ids: typing.List[str], lifestyle_type_ids: typing.List[str],
+               **kwargs):
+        facility_types = FacilityType.objects.filter(id__in=facility_type_ids)
+        lifestyle_types = LifestyleType.objects.filter(id__in=lifestyle_type_ids)
         geocoder_result = geocoder.reverse_geocode(coordinates.x, coordinates.y)
         city = City.objects.get_or_create(name=geocoder_result["city"], country=geocoder_result["country"])
-        return CreateProperty(created_property=Property.objects.create(**kwargs, coordinates=coordinates.get_point(), city=city))
+        created_property = Property.objects.create(**kwargs, coordinates=coordinates.get_point(), city=city,
+                                                   facility_types=facility_types, lifestyle_types=lifestyle_types)
+        return CreateProperty(created_property=created_property)
 
 
 class UpdateProperty(Mutation, SuccessMixin):
@@ -215,29 +229,6 @@ class UpdateProperty(Mutation, SuccessMixin):
 
         property_queryset.update(**{key: value for key, value in kwargs.values() if value is not None})
         return UpdateProperty(property=property_queryset.get())
-
-
-class CreateProperty(Mutation, SuccessMixin):
-    class Arguments:
-        coordinates = PointInputType()
-        user_id = Int()
-        name = String()
-        description = String()
-        is_available = Boolean()
-        usd_worth = Float()
-        photo_id = Int()
-        meters_squared = Float()
-        property_type = ID()
-        room_type = String()
-        facility_types = List(ID)
-        lifestyle_types = List(ID)
-
-    property = Field(PropertyType)
-
-    def mutate(parent, info, **kwargs):
-        property = Property(**kwargs)
-        property.save()
-        return CreateProperty(property=property)
 
 
 class Login(graphene.Mutation, SuccessMixin):
