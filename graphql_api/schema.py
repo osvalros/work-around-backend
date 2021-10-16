@@ -1,13 +1,13 @@
 import graphene
 from django.contrib.gis.db import models
 from django.contrib.gis.db.models.functions import Distance
-from django.contrib.gis.geos import Point
 from graphene import Field, Mutation, Boolean, String, Int, Float
 from graphene_django import DjangoObjectType
 from graphene_django.converter import convert_django_field
 from graphene_django.debug import DjangoDebug
 
 from graphql_api.models import User, Property
+from graphql_api.utils import GeographyPoint
 from work_around import settings
 
 
@@ -16,7 +16,7 @@ class PointTypeMixin:
     y = graphene.Float(required=True)
 
     def get_point(self):
-        return Point(self.x, self.y, srid=4326)
+        return GeographyPoint(self.x, self.y)
 
 
 class PointType(graphene.ObjectType, PointTypeMixin):
@@ -64,8 +64,7 @@ class Query(graphene.ObjectType):
     health = graphene.Field(HealthType, required=True)
     users = graphene.List(graphene.NonNull(UserType), required=True)
     closest_properties = graphene.List(graphene.NonNull(PropertyType), required=True,
-                                       lat=graphene.Float(default_value=50.083076),
-                                       lng=graphene.Float(default_value=14.420020),
+                                       coordinates=PointInputType(),
                                        max_distance=graphene.Float(description="Maximal distance in kilometers"),
                                        is_available=graphene.Boolean())
 
@@ -78,9 +77,11 @@ class Query(graphene.ObjectType):
         return User.objects.all()
 
     @staticmethod
-    def resolve_closest_properties(root, info, lat: float, lng: float, max_distance: float = None,
+    def resolve_closest_properties(root, info, coordinates: PointInputType = None, max_distance: float = None,
                                    is_available: bool = None):
-        properties = Property.objects.annotate(distance=Distance('coordinates', Point(lat, lng, srid=4326))) \
+
+        coordinates = GeographyPoint(x=50.083076, y=14.420020) if coordinates is None else coordinates.get_point()
+        properties = Property.objects.annotate(distance=Distance('coordinates', coordinates)) \
             .order_by('distance')
         if max_distance is not None:
             properties = properties.filter(distance__lte=max_distance * 1000)
