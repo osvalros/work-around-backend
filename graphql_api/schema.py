@@ -1,7 +1,7 @@
 import graphene
 from django.contrib.gis.db import models
 from django.contrib.gis.db.models.functions import Distance
-from graphene import Field, Mutation, Boolean, String, Int, Float
+from graphene import Field, Mutation, Boolean, String, Int, Float, ID, List
 from graphene_django import DjangoObjectType
 from graphene_django.converter import convert_django_field
 from graphene_django.debug import DjangoDebug
@@ -174,6 +174,29 @@ class UpdateProperty(Mutation, SuccessMixin):
         property_queryset = Property.objects.filter(id=property_id)
         property_queryset.update(**{key: value for key, value in kwargs.values() if value is not None})
         return UpdateProperty(property=property_queryset.get())
+
+
+class CreateProperty(Mutation, SuccessMixin):
+    class Arguments:
+        coordinates = PointInputType()
+        user_id = Int()
+        name = String()
+        description = String()
+        is_available = Boolean()
+        usd_worth = Float()
+        photo_id = Int()
+        meters_squared = Float()
+        property_type = ID()
+        room_type = String()
+        facility_types = List(ID())
+        lifestyle_types = List(ID())
+
+    property = Field(PropertyType)
+
+    def mutate(parent, info, **kwargs):
+        property = Property(**kwargs)
+        property.save()
+        return CreateProperty(property=property)
 
 
 class Login(graphene.Mutation, SuccessMixin):
