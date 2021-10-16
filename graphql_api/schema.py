@@ -11,7 +11,7 @@ from graphene_django.debug import DjangoDebug
 from opencage.geocoder import OpenCageGeocode
 
 from graphql_api.models import User, Property, LifestyleType, FacilityType, LengthOfStay, RoomType, City, PropertyType, \
-    Application
+    Application, CommuteType
 from graphql_api.utils import GeographyPoint
 from work_around import settings
 
@@ -79,6 +79,11 @@ class PropertyTypeType(DjangoObjectType):
         model = PropertyType
 
 
+class CommuteTypeType(DjangoObjectType):
+    class Meta:
+        model = CommuteType
+
+
 class PropertyType(DjangoObjectType):
     distance = graphene.Float(required=False, description="Distance from queried value (if queried) in kilometers.")
 
@@ -108,6 +113,7 @@ class Query(graphene.ObjectType):
     lifestyle_types = graphene.List(graphene.NonNull(LifestyleTypeType), required=True)
     facility_types = graphene.List(graphene.NonNull(FacilityTypeType), required=True)
     property_types = graphene.List(graphene.NonNull(PropertyTypeType), required=True)
+    commute_types = graphene.List(graphene.NonNull(CommuteTypeType), required=True)
     lengths_of_stay = graphene.List(graphene.NonNull(Int), required=True)
     room_types = graphene.List(graphene.NonNull(String), required=True)
     available_cities = graphene.List(graphene.NonNull(CityType))
@@ -144,6 +150,10 @@ class Query(graphene.ObjectType):
     @staticmethod
     def resolve_property_types(root, info):
         return PropertyType.objects.all()
+
+    @staticmethod
+    def resolve_commute_types(root, info):
+        return CommuteType.objects.all()
 
     @staticmethod
     def resolve_lengths_of_stay(root, info):
