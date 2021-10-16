@@ -6,8 +6,10 @@ from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point
 from graphene_django import DjangoObjectType
 from graphene_django.converter import convert_django_field
+from graphene_django.debug import DjangoDebug
 
 from graphql_api.models import User, Property
+from work_around import settings
 
 
 class GeoJSON(graphene.Scalar):
@@ -40,7 +42,7 @@ class PropertyType(DjangoObjectType):
 
 
 class Query(graphene.ObjectType):
-    debug = Field(DjangoDebug, name='_debug') if settings.DEBUG else None
+    debug = graphene.Field(DjangoDebug, name='_debug') if settings.DEBUG else None
     health = graphene.Field(HealthType, required=True)
     users = graphene.List(graphene.NonNull(UserType), required=True)
 
@@ -54,7 +56,7 @@ class Query(graphene.ObjectType):
 
 
 class Mutation:
-    debug = Field(DjangoDebug, name='_debug') if settings.DEBUG else None
+    debug = graphene.Field(DjangoDebug, name='_debug') if settings.DEBUG else None
     pass
 
 
