@@ -7,5 +7,5 @@ class User(AbstractUser):
 
 
 class Property(models.Model):
-    coordinates = models.PointField()
+    coordinates = models.PointField(geography=True)
     user = models.ForeignKey(User, models.CASCADE)
