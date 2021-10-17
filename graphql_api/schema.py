@@ -1,10 +1,11 @@
 import typing
-import datetime
+
 import graphene
+from dateutil.parser import isoparse
 from django.contrib.gis.db import models
 from django.contrib.gis.db.models.functions import Distance
 from django.db import transaction
-from graphene import Field, Mutation, Boolean, String, Int, Float, ID, List, Date
+from graphene import Field, Mutation, Boolean, String, Int, Float, ID, List
 from graphene_django import DjangoObjectType
 from graphene_django.converter import convert_django_field
 from graphene_django.debug import DjangoDebug
@@ -269,7 +270,7 @@ class CreateApplication(Mutation, SuccessMixin):
                facility_types_ids: typing.List[str],
                **kwargs):
         created_application = Application.objects.create(**kwargs,
-                                                         move_in_date=datetime.date.fromisoformat(move_in_date))
+                                                         move_in_date=isoparse(move_in_date))
         ApplicationPreferredCity.objects.bulk_create(
             [ApplicationPreferredCity(application=created_application, city_id=preferred_city_id, order=index+1)
              for index, preferred_city_id in enumerate(preferred_cities_ids)]
