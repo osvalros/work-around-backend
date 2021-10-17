@@ -36,19 +36,19 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 
-This is a code repository for backend of Work Around project, that was created as solution of Hackprague 2021 challenge.
-As part of the solution was created [frontend](https://github.com/borisrakovan/workaround-frontend) that leverages
-features of this backend.
+This is a code repository of backend for Work Around project creating as solution of Hackprague 2021 Challenge.
+As a part of this solution [frontend](https://github.com/borisrakovan/workaround-frontend) was created that leverages
+features of this code base.
 
-Work Around is a platform for people who have a place of their own (flat, house, ...) and would like to try living
-somewhere else for a change. In the age of COVID, working at home has become more and more common. Work Around is
-giving people the opportunity to work around the world, having adventures while working the same remote job
+Work Around is a platform for people having a place of their own (flat, house, ...) who would like to try living
+somewhere else for a change. In the age of COVID-19, working from home has become more of a common practice. Work Around is
+giving people the opportunity to work around the world, making possibble to take on adventures while working the same remote job
 they did back home.
 
 ### How it works
-Adventurer who joins this platform will give his property into the program, giving location, features, etc.
+Adventurer who joins this platform will provide his property info into the program containg location, features, etc.
 Then they can apply for participation with this property. They will then fill out their preferred destinations
-and other preferences. After that, our algorithm will match that person with other adventurers who have matching
+and other preferences. After that, our AI Powered algorithm will match that person with other adventurers who have matching
 interests creating a chain of house/flat swaps. This gives each person their next destination for temporary living.
 
 ### Built With
