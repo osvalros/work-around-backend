@@ -48,6 +48,7 @@ class Application(models.Model):
     pet_friendly = models.BooleanField(blank=True, null=True)
     move_in_date = models.DateField(blank=True, null=True)
     length_of_stay = models.IntegerField(choices=LengthOfStay.choices)
+    accepted = models.BooleanField(default=False)
     lifestyle_types = models.ManyToManyField("graphql_api.LifestyleType", through="LifestyleTypeApplication",
                                              related_name="applications")
     commute_types = models.ManyToManyField("graphql_api.CommuteType", through="CommuteTypeApplication",
@@ -160,6 +161,8 @@ class RecommendationManager(models.Manager):
 class Recommendation(models.Model):
     objects = RecommendationManager()
 
+    accepted = models.BooleanField(default=False)
+
 
 class RecommendationApplication(models.Model):
     recommendation = models.ForeignKey(Recommendation, models.CASCADE, related_name="recommendation_applications")
@@ -173,11 +176,15 @@ class RecommendationApplication(models.Model):
         self.save()
         if self.recommendation.recommendation_applications.filter(accepted=False).exists():
             return
-        ids_of_applications_of_recommendation = \
-            Application.objects.filter(recommendation_applications__recommendation=self.recommendation) \
-                .values_list("id", flat=True)
+        self.recommendation.accepted = True
+        self.recommendation.save()
+
+        applications_of_recommendation = \
+            Application.objects.filter(recommendation_applications__recommendation=self.recommendation)
+        applications_of_recommendation.update(accepted=True)
+
         Recommendation.objects.exclude(id=self.recommendation.id) \
-            .filter(recommendation_applications__application_id__in=ids_of_applications_of_recommendation) \
+            .filter(recommendation_applications__application_id__in=applications_of_recommendation.values_list("id", flat=True)) \
             .delete()
 
     class Meta:
