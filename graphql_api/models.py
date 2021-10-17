@@ -162,10 +162,23 @@ class Recommendation(models.Model):
 
 
 class RecommendationApplication(models.Model):
-    recommendation = models.ForeignKey(Recommendation, models.CASCADE)
+    recommendation = models.ForeignKey(Recommendation, models.CASCADE, related_name="recommendation_applications")
     application = models.ForeignKey(Application, models.CASCADE, related_name="recommendation_applications")
     recommended = models.ForeignKey("RecommendationApplication", models.CASCADE, null=True, blank=True)
     accepted = models.BooleanField(default=False)
+
+    @transaction.atomic
+    def accept(self):
+        self.accepted = True
+        self.save()
+        if self.recommendation.recommendation_applications.filter(accepted=False).exists():
+            return
+        ids_of_applications_of_recommendation = \
+            Application.objects.filter(recommendation_applications__recommendation=self.recommendation) \
+                .values_list("id", flat=True)
+        Recommendation.objects.exclude(id=self.recommendation.id) \
+            .filter(recommendation_applications__application_id__in=ids_of_applications_of_recommendation) \
+            .delete()
 
     class Meta:
         unique_together = ("recommendation", "application")
