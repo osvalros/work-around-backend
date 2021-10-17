@@ -364,7 +364,7 @@ class AcceptRecommendation(graphene.Mutation, SuccessMixin):
     @staticmethod
     def mutate(root, info, recommendation_application_id: str):
         recommendation_application = \
-            RecommendationApplication.objects.get(recommendation_application_id=recommendation_application_id)
+            RecommendationApplication.objects.get(id=recommendation_application_id)
         recommendation_application.accept()
         return Register(recommendation_application=recommendation_application)
 
