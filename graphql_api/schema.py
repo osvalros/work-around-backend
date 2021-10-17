@@ -167,7 +167,7 @@ class Query(graphene.ObjectType):
 
     @staticmethod
     def resolve_available_cities(root, info):
-        return City.objects.filter(properties__is_available=True)
+        return City.objects.filter(properties__is_available=True).distinct()
 
 
 class SuccessMixin:
