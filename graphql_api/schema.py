@@ -206,8 +206,8 @@ class Query(graphene.ObjectType):
         recommendation_applications = RecommendationApplication.objects \
             .filter(application__property__user_id=user_id) \
             .prefetch_related("recommended", "recommended__application")
-        return [recommendation_application.recommended
-                for recommendation_application in recommendation_applications]
+        return {recommendation_application.recommended.application_id: recommendation_application.recommended
+                for recommendation_application in recommendation_applications}.values()
 
 
 class SuccessMixin:
