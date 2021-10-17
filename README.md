@@ -38,6 +38,17 @@
 
 This is a code repository for backend of Work Around project, that was created as solution of Hackprague 2021 challenge.
 
+Work Around is a platform for people who have a place of their own (flat, house, ...) and would like to try living
+somewhere else for a change. In the age of COVID, working at home has become more and more common. Work Around is
+giving people the opportunity to work around the world, having adventures while working the same remote job
+they did back home.
+
+### How it works
+Adventurer who joins this platform will give his property into the program, giving location, features, etc.
+Then they can apply for participation with this property. They will then fill out their preferred destinations
+and other preferences. After that, our algorithm will match that person with other adventurers who have matching
+interests creating a chain of house/flat swaps. This gives each person their next destination for temporary living.
+
 ### Built With
 
 * [Django](https://www.djangoproject.com/)
