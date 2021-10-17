@@ -1,4 +1,3 @@
-
 import typing
 
 import graphene
@@ -349,6 +348,20 @@ class Register(graphene.Mutation, SuccessMixin):
         return Register(me=User.objects.create_user(username=username, email=email, password=password))
 
 
+class AcceptRecommendation(graphene.Mutation, SuccessMixin):
+    class Arguments:
+        recommendation_application_id = graphene.ID(required=True)
+
+    recommendation_application = graphene.NonNull(RecommendationApplicationType)
+
+    @staticmethod
+    def mutate(root, info, recommendation_application_id: str):
+        recommendation_application = \
+            RecommendationApplication.objects.get(recommendation_application_id=recommendation_application_id)
+        recommendation_application.accept()
+        return Register(recommendation_application=recommendation_application)
+
+
 class Mutation(graphene.ObjectType):
     debug = graphene.Field(DjangoDebug, name='_debug') if settings.DEBUG else None
     register = Register.Field()
@@ -357,6 +370,7 @@ class Mutation(graphene.ObjectType):
     update_property = UpdateProperty.Field()
     create_property = CreateProperty.Field()
     create_application = CreateApplication.Field()
+    accept_recommendation = AcceptRecommendation.Field()
 
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
