@@ -285,6 +285,16 @@ class UpdateProperty(Mutation, SuccessMixin):
         return UpdateProperty(property=property_queryset.get())
 
 
+class DeleteProperty(Mutation, SuccessMixin):
+    class Arguments:
+        property_id = graphene.ID(required=True)
+
+    @staticmethod
+    def mutate(root, info, property_id):
+        Property.objects.get(id=property_id).delete()
+        return DeleteProperty()
+
+
 class CreateApplication(Mutation, SuccessMixin):
     class Arguments:
         property_id = ID(required=True)
@@ -376,6 +386,7 @@ class Mutation(graphene.ObjectType):
     update_user = UpdateUser.Field()
     update_property = UpdateProperty.Field()
     create_property = CreateProperty.Field()
+    delete_property = DeleteProperty.Field()
     create_application = CreateApplication.Field()
     accept_recommendation = AcceptRecommendation.Field()
 
