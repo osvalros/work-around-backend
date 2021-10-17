@@ -163,7 +163,7 @@ class Recommendation(models.Model):
 class RecommendationApplication(models.Model):
     recommendation = models.ForeignKey(Recommendation, models.CASCADE)
     application = models.ForeignKey(Application, models.CASCADE, related_name="recommendation_applications")
-    recommended = models.ForeignKey("RecommendationApplication", models.CASCADE)
+    recommended = models.ForeignKey("RecommendationApplication", models.CASCADE, null=True, blank=True)
     accepted = models.BooleanField(default=False)
 
     class Meta:
