@@ -245,7 +245,6 @@ class CreateProperty(Mutation, SuccessMixin):
         description = String()
         coordinates = PointInputType(required=True)
         user_id = ID(required=True)
-        number_of_people = Int()
         usd_worth = Float(required=True)
         photo_id = String(required=True)
         meters_squared = Int(required=True)
@@ -308,6 +307,7 @@ class CreateApplication(Mutation, SuccessMixin):
         length_of_stay = Int(required=True)
         move_in_date = String(required=True)  # using date because of frontend code generation problem
         pet_friendly = Boolean(required=True)
+        number_of_people = Int()
         preferred_cities_ids = graphene.List(graphene.NonNull(ID), required=True)
         lifestyle_types_ids = graphene.List(graphene.NonNull(ID), required=True)
         commute_types_ids = graphene.List(graphene.NonNull(ID), required=True)
