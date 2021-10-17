@@ -10,6 +10,7 @@ from graphene_django import DjangoObjectType
 from graphene_django.converter import convert_django_field
 from graphene_django.debug import DjangoDebug
 
+from graphql_api.matching import MatchingAlgorithm
 from graphql_api.models import User, Property, LifestyleType, FacilityType, LengthOfStay, RoomType, City, PropertyType, \
     Application, CommuteType, ApplicationPreferredCity, RecommendationApplication, Recommendation
 from graphql_api.utils import GeographyPoint, get_city
@@ -317,6 +318,12 @@ class CreateApplication(Mutation, SuccessMixin):
         created_application.commute_types.set(CommuteType.objects.filter(id__in=commute_types_ids))
         created_application.property_types.set(PropertyType.objects.filter(id__in=property_types_ids))
         created_application.facility_types.set(FacilityType.objects.filter(id__in=facility_types_ids))
+
+        Recommendation.objects.filter(accepted=False).delete()
+
+        for application_ids in MatchingAlgorithm().find_matching_application_sets():
+            Recommendation.objects.create_recommendation(application_ids)
+
         return CreateApplication(created_application=created_application)
 
 
