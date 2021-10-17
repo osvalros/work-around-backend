@@ -50,7 +50,8 @@ class Application(models.Model):
                                             related_name="applications")
     property_types = models.ManyToManyField("graphql_api.PropertyType", through="PropertyTypeApplication",
                                             related_name="applications")
-    preferred_cities = models.ManyToManyField(City)
+    preferred_cities = models.ManyToManyField(City, through="ApplicationPreferredCity",
+                                              related_name="applications")
 
 
 class ApplicationPreferredCity(models.Model):
