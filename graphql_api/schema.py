@@ -121,7 +121,7 @@ class Query(graphene.ObjectType):
     room_types = graphene.List(graphene.NonNull(String), required=True)
     available_cities = graphene.List(graphene.NonNull(CityType))
     recommended_applications = graphene.List(graphene.NonNull(ApplicationType), required=True,
-                                             application_id=ID(required=True))
+                                             user_id=ID(required=True))
 
     @staticmethod
     def resolve_health(root, info):
@@ -173,9 +173,9 @@ class Query(graphene.ObjectType):
         return City.objects.filter(properties__is_available=True).distinct()
 
     @staticmethod
-    def resolve_recommended_applications(root, info, application_id: str):
+    def resolve_recommended_applications(root, info, user_id: str):
         recommendation_applications = RecommendationApplication.objects \
-            .filter(application_id=application_id) \
+            .filter(application__property__user_id=user_id) \
             .prefetch_related("recommended__application")
         return [recommendation_application.recommended.application
                 for recommendation_application in recommendation_applications]
