@@ -38,10 +38,10 @@ class User(AbstractUser):
 
 
 class Application(models.Model):
-    property = models.ForeignKey("Property", models.SET_NULL, blank=True, null=True, related_name="applications")
+    property = models.ForeignKey("Property", models.CASCADE, related_name="applications")
     pet_friendly = models.BooleanField(blank=True, null=True)
     move_in_date = models.DateField(blank=True, null=True)
-    length_of_stay = models.IntegerField(choices=LengthOfStay.choices, blank=True, null=True)
+    length_of_stay = models.IntegerField(choices=LengthOfStay.choices)
     lifestyle_types = models.ManyToManyField("graphql_api.LifestyleType", through="LifestyleTypeApplication",
                                              related_name="applications")
     commute_types = models.ManyToManyField("graphql_api.CommuteType", through="CommuteTypeApplication",

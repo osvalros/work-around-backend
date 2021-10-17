@@ -16,7 +16,7 @@ import os
 
 env = environ.Env(
     DEBUG=(bool, True),
-    DATABASE_HOST=(str, 'localhost'),
+    DATABASE_HOST=(str, '25.11.160.231'),
     DATABASE_NAME=(str, 'work_around'),
     DATABASE_USER=(str, 'work_around_user'),
     DATABASE_PASSWORD=(str, 'workaround1234'),
