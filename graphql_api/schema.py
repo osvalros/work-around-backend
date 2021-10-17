@@ -10,7 +10,7 @@ from graphene_django.converter import convert_django_field
 from graphene_django.debug import DjangoDebug
 
 from graphql_api.models import User, Property, LifestyleType, FacilityType, LengthOfStay, RoomType, City, PropertyType, \
-    Application, CommuteType
+    Application, CommuteType, ApplicationPreferredCity
 from graphql_api.utils import GeographyPoint, get_city
 from work_around import settings
 
@@ -270,7 +270,10 @@ class CreateApplication(Mutation, SuccessMixin):
                **kwargs):
         created_application = Application.objects.create(**kwargs,
                                                          move_in_date=datetime.date.fromisoformat(move_in_date))
-        created_application.preferred_cities.set(City.objects.filter(id__in=preferred_cities_ids))
+        ApplicationPreferredCity.objects.bulk_create(
+            [ApplicationPreferredCity(application=created_application, city_id=preferred_city_id, order=index+1)
+             for index, preferred_city_id in enumerate(preferred_cities_ids)]
+        )
         created_application.lifestyle_types.set(LifestyleType.objects.filter(id__in=lifestyle_types_ids))
         created_application.commute_types.set(CommuteType.objects.filter(id__in=commute_types_ids))
         created_application.property_types.set(PropertyType.objects.filter(id__in=property_types_ids))
