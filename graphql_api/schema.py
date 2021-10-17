@@ -144,7 +144,7 @@ class Query(graphene.ObjectType):
     lengths_of_stay = graphene.List(graphene.NonNull(Int), required=True)
     room_types = graphene.List(graphene.NonNull(String), required=True)
     available_cities = graphene.List(graphene.NonNull(CityType))
-    recommended_applications = graphene.List(graphene.NonNull(ApplicationType), required=True,
+    recommended_applications = graphene.List(graphene.NonNull(RecommendationApplicationType), required=True,
                                              user_id=ID(required=True))
 
     @staticmethod
@@ -204,8 +204,8 @@ class Query(graphene.ObjectType):
     def resolve_recommended_applications(root, info, user_id: str):
         recommendation_applications = RecommendationApplication.objects \
             .filter(application__property__user_id=user_id) \
-            .prefetch_related("recommended__application")
-        return [recommendation_application.recommended.application
+            .prefetch_related("recommended", "recommended__application")
+        return [recommendation_application.recommended
                 for recommendation_application in recommendation_applications]
 
 
