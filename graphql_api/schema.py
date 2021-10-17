@@ -245,6 +245,7 @@ class CreateProperty(Mutation, SuccessMixin):
         description = String()
         coordinates = PointInputType(required=True)
         user_id = ID(required=True)
+        number_of_people = Int()
         usd_worth = Float(required=True)
         photo_id = String(required=True)
         meters_squared = Int(required=True)
