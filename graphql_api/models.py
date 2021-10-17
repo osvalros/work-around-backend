@@ -49,6 +49,7 @@ class Application(models.Model):
     move_in_date = models.DateField(blank=True, null=True)
     length_of_stay = models.IntegerField(choices=LengthOfStay.choices)
     accepted = models.BooleanField(default=False)
+    number_of_people = models.IntegerField(blank=True, null=True)
     lifestyle_types = models.ManyToManyField("graphql_api.LifestyleType", through="LifestyleTypeApplication",
                                              related_name="applications")
     commute_types = models.ManyToManyField("graphql_api.CommuteType", through="CommuteTypeApplication",
