@@ -52,6 +52,8 @@ class Application(models.Model):
                                             related_name="applications")
     preferred_cities = models.ManyToManyField(City, through="ApplicationPreferredCity",
                                               related_name="applications")
+    recommendations = models.ManyToManyField("Recommendation", through="RecommendationApplication",
+                                             related_name="applications")
 
 
 class ApplicationPreferredCity(models.Model):
@@ -128,3 +130,17 @@ class PropertyRentals(models.Model):
 class LifestyleTypeProperty(models.Model):
     lifestyle_type = models.ForeignKey(LifestyleType, models.SET_NULL, blank=True, null=True)
     property = models.ForeignKey(Property, models.SET_NULL, blank=True, null=True)
+
+
+class Recommendation(models.Model):
+    pass
+
+
+class RecommendationApplication(models.Model):
+    recommendation = models.ForeignKey(Recommendation, models.CASCADE)
+    application = models.ForeignKey(Application, models.CASCADE, related_name="recommendation_applications")
+    recommended = models.ForeignKey("RecommendationApplication", models.CASCADE)
+    accepted = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ("recommendation", "application")
