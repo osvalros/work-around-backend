@@ -1,5 +1,5 @@
 import typing
-
+import datetime
 import graphene
 from django.contrib.gis.db import models
 from django.contrib.gis.db.models.functions import Distance
@@ -247,7 +247,7 @@ class CreateApplication(Mutation, SuccessMixin):
     class Arguments:
         property_id = ID(required=True)
         length_of_stay = Int(required=True)
-        move_in_date = Date(required=True)
+        move_in_date = String(required=True)  # using date because of frontend code generation problem
         pet_friendly = Boolean(required=True)
         preferred_cities_ids = graphene.List(graphene.NonNull(ID), required=True)
         lifestyle_types_ids = graphene.List(graphene.NonNull(ID), required=True)
@@ -259,14 +259,15 @@ class CreateApplication(Mutation, SuccessMixin):
 
     @staticmethod
     @transaction.atomic
-    def mutate(parent, info,
+    def mutate(parent, info, move_in_date: str,
                preferred_cities_ids: typing.List[str],
                lifestyle_types_ids: typing.List[str],
                commute_types_ids: typing.List[str],
                property_types_ids: typing.List[str],
                facility_types_ids: typing.List[str],
                **kwargs):
-        created_application = Application.objects.create(**kwargs)
+        created_application = Application.objects.create(**kwargs,
+                                                         move_in_date=datetime.date.fromisoformat(move_in_date))
         created_application.preferred_cities.set(City.objects.filter(id__in=preferred_cities_ids))
         created_application.lifestyle_types.set(LifestyleType.objects.filter(id__in=lifestyle_types_ids))
         created_application.commute_types.set(CommuteType.objects.filter(id__in=commute_types_ids))
