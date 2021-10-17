@@ -110,6 +110,7 @@ class Query(graphene.ObjectType):
     debug = graphene.Field(DjangoDebug, name='_debug') if settings.DEBUG else None
     health = graphene.Field(HealthType, required=True)
     users = graphene.List(graphene.NonNull(UserType), required=True)
+    applications = graphene.List(graphene.NonNull(ApplicationType), required=True, user_id=Int())
     closest_properties = graphene.List(graphene.NonNull(PropertyObjectType), required=True,
                                        coordinates=PointInputType(),
                                        max_distance=graphene.Float(description="Maximal distance in kilometers"),
@@ -131,6 +132,10 @@ class Query(graphene.ObjectType):
     @staticmethod
     def resolve_users(root, info):
         return User.objects.all()
+
+    @staticmethod
+    def resolve_applications(root, info, user_id: Int):
+        return Application.objects.filter(property__user_id=user_id).all()
 
     @staticmethod
     def resolve_closest_properties(root, info, coordinates: PointInputType = None, max_distance: float = None,
