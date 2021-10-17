@@ -199,7 +199,7 @@ class CreateProperty(Mutation, SuccessMixin):
         name = String(required=True)
         description = String()
         coordinates = PointInputType(required=True)
-        user_id = Int(required=True)
+        user_id = ID(required=True)
         usd_worth = Float(required=True)
         photo_id = String(required=True)
         meters_squared = Float(required=True)
