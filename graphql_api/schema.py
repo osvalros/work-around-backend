@@ -12,7 +12,7 @@ from graphene_django.converter import convert_django_field
 from graphene_django.debug import DjangoDebug
 
 from graphql_api.models import User, Property, LifestyleType, FacilityType, LengthOfStay, RoomType, City, PropertyType, \
-    Application, CommuteType, ApplicationPreferredCity, RecommendationApplication
+    Application, CommuteType, ApplicationPreferredCity, RecommendationApplication, Recommendation
 from graphql_api.utils import GeographyPoint, get_city
 from work_around import settings
 
@@ -49,6 +49,29 @@ class HealthType(graphene.ObjectType):
 class ApplicationType(DjangoObjectType):
     class Meta:
         model = Application
+
+
+class ProgressType(graphene.ObjectType):
+    done = graphene.Int()
+    total = graphene.Int()
+
+
+class RecommendationType(DjangoObjectType):
+    progress = graphene.NonNull(ProgressType)
+
+    @staticmethod
+    def resolve_progress(parent: Recommendation, info):
+        done = parent.recommendation_applications.filter(accepted=True).count()
+        total = parent.recommendation_applications.count()
+        return ProgressType(done=done, total=total)
+
+    class Meta:
+        model = Recommendation
+
+
+class RecommendationApplicationType(DjangoObjectType):
+    class Meta:
+        model = RecommendationApplication
 
 
 class UserType(DjangoObjectType):
