@@ -21,7 +21,7 @@ class MatchingAlgorithm:
 
     def find_matching_application_sets(self) -> List[List[str]]:
         all_applications = Application.objects.prefetch_related(
-            "property__city", "preferred_cities").all()
+            "property__city", "preferred_cities").filter(accepted=False)
 
         application_groups = defaultdict(list)
 
