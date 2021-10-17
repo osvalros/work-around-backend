@@ -33,6 +33,7 @@ class RoomType(models.TextChoices):
 class City(models.Model):
     name = models.CharField(max_length=100)
     country = models.CharField(max_length=100, null=True, blank=True)
+    coordinates = models.PointField(geography=True, null=True, blank=True)
 
     class Meta:
         unique_together = ("name", "country")
