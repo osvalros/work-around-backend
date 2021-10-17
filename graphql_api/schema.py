@@ -47,6 +47,12 @@ class HealthType(graphene.ObjectType):
 
 
 class ApplicationType(DjangoObjectType):
+    length_of_stay = graphene.String()
+
+    @staticmethod
+    def resolve_length_of_stay(parent: Application, info):
+        return f"{parent.length_of_stay} months"
+
     class Meta:
         model = Application
 
