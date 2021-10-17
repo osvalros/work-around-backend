@@ -11,7 +11,7 @@ from graphene_django.converter import convert_django_field
 from graphene_django.debug import DjangoDebug
 
 from graphql_api.models import User, Property, LifestyleType, FacilityType, LengthOfStay, RoomType, City, PropertyType, \
-    Application, CommuteType, ApplicationPreferredCity
+    Application, CommuteType, ApplicationPreferredCity, RecommendationApplication
 from graphql_api.utils import GeographyPoint, get_city
 from work_around import settings
 
@@ -120,6 +120,8 @@ class Query(graphene.ObjectType):
     lengths_of_stay = graphene.List(graphene.NonNull(Int), required=True)
     room_types = graphene.List(graphene.NonNull(String), required=True)
     available_cities = graphene.List(graphene.NonNull(CityType))
+    recommended_applications = graphene.List(graphene.NonNull(ApplicationType), required=True,
+                                             application_id=ID(required=True))
 
     @staticmethod
     def resolve_health(root, info):
@@ -169,6 +171,14 @@ class Query(graphene.ObjectType):
     @staticmethod
     def resolve_available_cities(root, info):
         return City.objects.filter(properties__is_available=True).distinct()
+
+    @staticmethod
+    def resolve_recommended_applications(root, info, application_id: str):
+        recommendation_applications = RecommendationApplication.objects \
+            .filter(application_id=application_id) \
+            .prefetch_related("recommended__application")
+        return [recommendation_application.recommended.application
+                for recommendation_application in recommendation_applications]
 
 
 class SuccessMixin:
@@ -272,7 +282,7 @@ class CreateApplication(Mutation, SuccessMixin):
         created_application = Application.objects.create(**kwargs,
                                                          move_in_date=isoparse(move_in_date))
         ApplicationPreferredCity.objects.bulk_create(
-            [ApplicationPreferredCity(application=created_application, city_id=preferred_city_id, order=index+1)
+            [ApplicationPreferredCity(application=created_application, city_id=preferred_city_id, order=index + 1)
              for index, preferred_city_id in enumerate(preferred_cities_ids)]
         )
         created_application.lifestyle_types.set(LifestyleType.objects.filter(id__in=lifestyle_types_ids))
