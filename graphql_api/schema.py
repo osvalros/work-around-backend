@@ -366,7 +366,7 @@ class AcceptRecommendation(graphene.Mutation, SuccessMixin):
         recommendation_application = \
             RecommendationApplication.objects.get(id=recommendation_application_id)
         recommendation_application.accept()
-        return Register(recommendation_application=recommendation_application)
+        return AcceptRecommendation(recommendation_application=recommendation_application)
 
 
 class Mutation(graphene.ObjectType):
