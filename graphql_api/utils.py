@@ -1,5 +1,6 @@
 import logging
 from typing import Tuple
+import itertools
 
 from django.contrib.gis.geos import Point
 from opencage.geocoder import OpenCageGeocode
@@ -31,3 +32,8 @@ def get_city(coordinates):
         return None
     return city
 
+
+def pairwise(iterable):
+    a, b = itertools.tee(iterable)
+    first = next(b, None)
+    return zip(a, b)

@@ -1,5 +1,10 @@
-from django.contrib.gis.db import models
+from typing import List, Union
+
 from django.contrib.auth.models import AbstractUser
+from django.contrib.gis.db import models
+from django.db import transaction
+
+from graphql_api.utils import pairwise
 
 
 class LengthOfStay(models.IntegerChoices):
@@ -132,8 +137,27 @@ class LifestyleTypeProperty(models.Model):
     property = models.ForeignKey(Property, models.SET_NULL, blank=True, null=True)
 
 
+class RecommendationManager(models.Manager):
+    @transaction.atomic
+    def create_recommendation(self, application_ids: List[Union[str, int]]):
+        if len(application_ids) < 2:
+            raise Exception("At least 2 application ids needed for a recommendation.")
+        recommendation = self.create()
+        recommendation_applications = [
+            RecommendationApplication.objects.create(application_id=application_id, recommendation=recommendation)
+            for application_id in application_ids
+        ]
+        for recommendation_application, next_recommendation_application in pairwise(recommendation_applications):
+            recommendation_application.recommended = next_recommendation_application
+            recommendation_application.save()
+        recommendation_applications[-1].recommended = recommendation_applications[0]
+        recommendation_applications[-1].save()
+
+        return recommendation
+
+
 class Recommendation(models.Model):
-    pass
+    objects = RecommendationManager()
 
 
 class RecommendationApplication(models.Model):
