@@ -1,5 +1,10 @@
-from django.contrib.gis.db import models
+from typing import List, Union
+
 from django.contrib.auth.models import AbstractUser
+from django.contrib.gis.db import models
+from django.db import transaction
+
+from graphql_api.utils import pairwise
 
 
 class LengthOfStay(models.IntegerChoices):
@@ -28,6 +33,7 @@ class RoomType(models.TextChoices):
 class City(models.Model):
     name = models.CharField(max_length=100)
     country = models.CharField(max_length=100, null=True, blank=True)
+    coordinates = models.PointField(geography=True, null=True, blank=True)
 
     class Meta:
         unique_together = ("name", "country")
@@ -52,6 +58,8 @@ class Application(models.Model):
                                             related_name="applications")
     preferred_cities = models.ManyToManyField(City, through="ApplicationPreferredCity",
                                               related_name="applications")
+    recommendations = models.ManyToManyField("Recommendation", through="RecommendationApplication",
+                                             related_name="applications")
 
 
 class ApplicationPreferredCity(models.Model):
@@ -128,3 +136,37 @@ class PropertyRentals(models.Model):
 class LifestyleTypeProperty(models.Model):
     lifestyle_type = models.ForeignKey(LifestyleType, models.SET_NULL, blank=True, null=True)
     property = models.ForeignKey(Property, models.SET_NULL, blank=True, null=True)
+
+
+class RecommendationManager(models.Manager):
+    @transaction.atomic
+    def create_recommendation(self, application_ids: List[Union[str, int]]):
+        if len(application_ids) < 2:
+            raise Exception("At least 2 application ids needed for a recommendation.")
+        recommendation = self.create()
+        recommendation_applications = [
+            RecommendationApplication.objects.create(application_id=application_id, recommendation=recommendation)
+            for application_id in application_ids
+        ]
+        for recommendation_application, next_recommendation_application in pairwise(recommendation_applications):
+            recommendation_application.recommended = next_recommendation_application
+            recommendation_application.save()
+        recommendation_applications[-1].recommended = recommendation_applications[0]
+        recommendation_applications[-1].save()
+
+        return recommendation
+
+
+class Recommendation(models.Model):
+    objects = RecommendationManager()
+
+
+class RecommendationApplication(models.Model):
+    recommendation = models.ForeignKey(Recommendation, models.CASCADE)
+    application = models.ForeignKey(Application, models.CASCADE, related_name="recommendation_applications")
+    recommended = models.ForeignKey("RecommendationApplication", models.CASCADE, null=True, blank=True)
+    accepted = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ("recommendation", "application")
+

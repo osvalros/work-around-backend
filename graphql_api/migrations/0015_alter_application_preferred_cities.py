@@ -10,7 +10,11 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
+        migrations.RemoveField(
+            model_name='application',
+            name='preferred_cities',
+        ),
+        migrations.AddField(
             model_name='application',
             name='preferred_cities',
             field=models.ManyToManyField(related_name='applications', through='graphql_api.ApplicationPreferredCity', to='graphql_api.City'),

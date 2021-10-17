@@ -1,3 +1,4 @@
+
 """
 Django settings for work_around project.
 
@@ -16,7 +17,7 @@ import os
 
 env = environ.Env(
     DEBUG=(bool, True),
-    DATABASE_HOST=(str, '25.11.160.231'),
+    DATABASE_HOST=(str, 'localhost'),
     DATABASE_NAME=(str, 'work_around'),
     DATABASE_USER=(str, 'work_around_user'),
     DATABASE_PASSWORD=(str, 'workaround1234'),
@@ -47,6 +48,7 @@ ALLOWED_HOSTS = [
 ]
 
 CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOWED_ORIGINS = [
     "http://learneron.local:3000",
