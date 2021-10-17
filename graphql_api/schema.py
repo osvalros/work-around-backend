@@ -234,7 +234,9 @@ class UpdateProperty(Mutation, SuccessMixin):
 
     property = Field(PropertyObjectType)
 
-    def mutate(parent, info, property_id, coordinates=None, **kwargs):
+    @staticmethod
+    @transaction.atomic
+    def mutate(root, info, property_id, coordinates=None, **kwargs):
         property_queryset = Property.objects.filter(id=property_id)
         if coordinates is not None:
             kwargs.update(coordinates=coordinates.get_point(), city=get_city(coordinates))
