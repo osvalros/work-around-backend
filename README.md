@@ -37,6 +37,8 @@
 ## About The Project
 
 This is a code repository for backend of Work Around project, that was created as solution of Hackprague 2021 challenge.
+As part of the solution was created [frontend](https://github.com/borisrakovan/workaround-frontend) that leverages
+features of this backend.
 
 Work Around is a platform for people who have a place of their own (flat, house, ...) and would like to try living
 somewhere else for a change. In the age of COVID, working at home has become more and more common. Work Around is
